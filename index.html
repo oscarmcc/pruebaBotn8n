@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Formulario Telegram</title>
+</head>
+<body>
+  <h2>Enviar mensaje a Telegram</h2>
+ 
+  <!-- Formulario de selección de usuario -->
+  <label for="selectUser">Selecciona un usuario:</label>
+  <select id="selectUser">
+    <option value="">--Seleccione un usuario--</option>
+  </select>
+ 
+  <br><br>
+ 
+  <!-- Formulario para enviar el mensaje -->
+  <label for="message">Mensaje:</label>
+  <input type="text" id="message" required>
+  <button onclick="sendMessage()">Enviar mensaje</button>
+ 
+  <pre id="response"></pre> <!-- Aquí se mostrará la respuesta -->
+ 
+  <script>
+  const botToken = '7863829115:AAEJReIYEWBIlqimwVC_brhMEogguga57mw'; // Reemplaza con tu token
+  const url = `https://api.telegram.org/bot${botToken}/getUpdates`;
+  console.log('URL de la API:', url); // Mostrar la URL en la consola
+
+  // Obtener las actualizaciones (mensajes) de la API de Telegram
+  fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Datos obtenidos:', data); // Mostrar los datos en la consola
+      const users = getUsersFromUpdates(data);
+      populateUserSelect(users);
+      setupUserSelectionListener(data.result); // Configurar el evento para mostrar mensajes
+    })
+    .catch(error => {
+      console.error('Error al obtener los mensajes:', error);
+      alert('Hubo un error al obtener los mensajes. Revisa la consola para más detalles.');
+    });
+
+  // Función para extraer los usuarios (chat IDs) de los mensajes
+  function getUsersFromUpdates(data) {
+    const users = [];
+    const uniqueIds = new Set(); // Usamos un Set para evitar duplicados
+
+    if (data.ok && data.result) {
+      data.result.forEach(update => {
+        if (update.message && update.message.chat) {
+          const chatId = update.message.chat.id;
+          const username = update.message.chat.username || `${update.message.chat.first_name || ''} ${update.message.chat.last_name || ''}`.trim();
+
+          // Solo agregamos usuarios únicos (por ID)
+          if (chatId && username && !uniqueIds.has(chatId)) {
+            uniqueIds.add(chatId); // Agregamos el ID al Set
+            users.push({ chatId, username });
+          }
+        }
+      });
+    }
+    return users;
+  }
+
+  // Función para poblar el selector de usuarios
+  function populateUserSelect(users) {
+    const selectUser = document.getElementById('selectUser');
+    users.forEach(user => {
+      const option = document.createElement('option');
+      option.value = user.chatId;
+      option.textContent = user.username;
+      selectUser.appendChild(option);
+    });
+  }
+
+  // Configurar el evento para mostrar mensajes del usuario seleccionado
+  function setupUserSelectionListener(messages) {
+    const selectUser = document.getElementById('selectUser');
+    selectUser.addEventListener('change', () => {
+      const chatId = selectUser.value;
+      if (!chatId) {
+        document.getElementById('response').textContent = 'Selecciona un usuario para ver sus mensajes.';
+        return;
+      }
+
+      // Filtrar los mensajes del usuario seleccionado
+      const userMessages = messages
+        .filter(update => update.message && update.message.chat.id == chatId)
+        .map(update => update.message.text || '[Mensaje sin texto]');
+
+      // Mostrar los mensajes en el elemento <pre>
+      const responseElement = document.getElementById('response');
+      responseElement.textContent = userMessages.length
+        ? userMessages.join('\n')
+        : 'No hay mensajes de este usuario.';
+    });
+  }
+ 
+    // Función para enviar el mensaje a n8n
+    function sendMessage() {
+  const selectUser = document.getElementById('selectUser');
+  const chatId = selectUser.value;
+  const message = document.getElementById('message').value;
+ 
+  if (!chatId || !message) {
+    alert('Por favor, selecciona un usuario y escribe un mensaje.');
+    return;
+  }
+ 
+  // Enviar los datos al Webhook de n8n
+  const data = { chatId, message };
+  console.log('Datos a enviar:', data); // Mostrar los datos en la consola
+ 
+  // Codificar la contraseña en Base64
+  const password = '80.102.160.22'; // Tu contraseña
+  const encodedCredentials = btoa(`:${password}`); // Codificar con un nombre de usuario vacío
+ 
+  fetch('http://localhost:5678/webhook-test/sendMessage', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data) // Enviar los datos en formato JSON
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Mensaje enviado con éxito:', data);
+    alert('Mensaje enviado con éxito');
+  })
+  .catch(error => {
+    console.error('Error al enviar el mensaje:', error);
+    alert('Hubo un error al enviar el mensaje');
+  });
+}
+  </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sendMessage",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "31db8f43-8387-4f1d-8dc6-51b8272c61b2",
+      "name": "Webhook",
+      "webhookId": "a81bc87f-34ff-4573-a9f6-c09c42801e71"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.body.chatId }}",
+        "text": "={{ $json.body.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "4fbd46c7-2820-4661-b6ec-b5dddd66ccec",
+      "name": "Telegram",
+      "webhookId": "6053d241-8170-421b-a72f-a9a284094bf0",
+      "credentials": {
+        "telegramApi": {
+          "id": "o0b0xsYQbULuVw0i",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "212beaa6-c8bf-4cae-afb0-fbff4b656e35",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "541d06a3947b5abbb530c060f47ad34b68cc86dfbe26ad0dcf81c659029d4d82"
+  },
+  "id": "NvhtajwLAdUcc5AD",
+  "tags": []
+}
