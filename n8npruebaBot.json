@@ -31,13 +31,7 @@
       ],
       "id": "4fbd46c7-2820-4661-b6ec-b5dddd66ccec",
       "name": "Telegram",
-      "webhookId": "6053d241-8170-421b-a72f-a9a284094bf0",
-      "credentials": {
-        "telegramApi": {
-          "id": "o0b0xsYQbULuVw0i",
-          "name": "Telegram account"
-        }
-      }
+      "webhookId": "6053d241-8170-421b-a72f-a9a284094bf0"
     }
   ],
   "pinData": {},
