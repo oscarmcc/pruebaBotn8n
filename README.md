@@ -1,4 +1,5 @@
 # Proyecto de prueba de n8n con bot de Telegram
+![Logo de n8n bot](logoprueban8nbot.png)
 
 ## Introducción
 
